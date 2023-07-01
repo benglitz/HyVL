@@ -48,5 +48,34 @@ We converted all estimates to a general coordinate system whose origin was place
 - Cam64 Data: The estimates of the Cam64 are simply shifted by the position of the Cam64 relative to the platform to obtain them in the coordinates mentioned above.
 - Video Data: An important step in this transition from pixel-coordinates to flat, Euclidean coordinates is to unwarp any lens-distortions of the acquired image. In our case, the camera/lens was already relatively flat and only mild unwarping was required. We provide multiple functions for this purpose in the repository (`C_correctImageDistortion`, `C_correctImageDistortion_V1_1`).
 
+# Data Analysis
+The main challenge in the analysis is to maintain a high accuracy through the entire pipeline. The overall steps in the pipeline initially treat the data from the different data sources independently and successively integrate them (see below for overview of the data flows and the involved functions). 
+
+![](SystemOverview.png)
+
+Importantly, while we here provide the functions that we use for the analysis, we presume that users will integrate them in various ways in their respective analysis/acquisition pipelines, and hence, we do not attempt to provide a fully general, independent system, but instead focus the description on a sample data set, that can be used for exploring the analysis. 
+
+## Audio Tracking
+The detection and localization of the USVs progressed in a few steps. In addition to the information provided in the manuscript we here provide more direct and practical links to the code used in the analysis.
+
+### Vocalization Detection
+We used a custom USV detection algorithm, extending the classical algorithm by Holy & Gua (2005). There are by now more recent systems, such as DeepSqueak or DAS and while our code has worked rather reliably in our hands, we strongly recommend users to use more recent, DNN-based techniques for detecting USVs. 
+Generally, it is likely recommendable to perform vocalization detection on the USM4 data, due to its superior SNR for high frequencies. In our algorithm, USVs are first detected on individual channels and the detected USVs later fused across channels, based on a number of timing criteria. The function call used for this purpose is `VocCollector.m`.
+VocCollector accepts multiple input formats, all passed in the typical format of Name,Value pairs. In our integrated toolchain, recordings can be directly loaded and processed by specifying the animal and recording number. For the purpose of this tutorial it makes more sense to instead based it on passed data, such as the one you might have acquired.
+
+`Vocs = VocCollector('Data',D,'SRAI',SR);`
+
+where D is just an N_{Steps}xN_{Microphone} matrix containing the USM4 data, and SR is the sampling rate of the data. VocCollector accepts multiple additional arguments, which are documented inside the function. The default settings have worked well for us in the past.
+A struct Vocs is returned with an entry for each vocalization detected. The struct has a number of fields, namely
+- Start: Start time of vocalization
+- Stop: Stop time of the vocalization
+- StartWin: Start time of the overall window over which the sound has been cutout
+- StopWin: Stop time of the overall window over which the sound has been cutout
+- Duration: Duration of the USV in seconds
+- Sound: Raw data from all channels
+- Time: Time vector for the sound data
+- Spec: Spectrogram for the Vocalization
+
+
 
 
