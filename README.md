@@ -79,9 +79,9 @@ A struct Vocs is returned with an entry for each vocalization detected. The stru
 - Spec: Spectrogram for the Vocalization
 
 ### USM4/SLIM Localization
-The code for SLIM localization (see Stahl et al. Scientific Reports, 2023 for details) based on the high-fidelity microphone data is contained in the function VocLocalizer.m. While we use 4 microphones here, the code fully generalizes to N microphones in arbitrary positions relative to the platform. The localization is called per USV.
+The code for SLIM localization (see Stahl et al. Scientific Reports, 2023 for details) based on the high-fidelity microphone data is contained in the function `VocLocalizer.m`, which is called by `VocAnalyzer.m` interally. While we use 4 microphones here, the code fully generalizes to N microphones in arbitrary positions relative to the platform. The localization is called per USV.
 
-`R = VocLocalizer('Sounds',Vocs(i).Sound,'SR',Vocs(i).SRSound,'MicrophonePositions',MP,'SourceHeight',SH);`
+`Vocs = VocAnalyzer(Vocs,'MicrophonePositions',MP,'SourceHeight',SH);`
 
 where the microphone positions MP are supplied as a cell with as many entries as microphones and each entry has three coordinates [X,Y,Z] in units of meters. Importantly, the source height, e.g. in our case 1 cm above the platform needs to be supplied for appropriately constraining the method.
 VocLocalizer accepts multiple additional arguments/options, which are documented inside the function itself. One useful function is Plot, which shows the microphone positions in relation to the estimated source location. 
