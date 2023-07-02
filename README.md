@@ -9,6 +9,8 @@ It is generally preferable to keep the whole setup inside a sound attenuated boo
 Since multiple data sources are being acquired with substantial data throughput each, which puts the computer under considerable load, it is recommendable to not use the computer for other tasks during the acquisition process.
 Generally, all measurements are supplied in units of meters to avoid conversion problems.
 
+![](SystemSetup.png)
+
 ## High-Fidelity Microphone Setup
 An array of high-fidelity ultrasonic microphones forms the basis for the acquisition of the audio data for USV detection and SLIM sound localization. While the geometry of the array and the number of microphones can be chosen rather freely (our code in VocLocalizer.m adapts to these), the accuracy of the design is essential for high-precision localization. 
 - Number of Microphones: 3 is the required minimum, but the more the better. We used 4 microphones, but expect that each additional microphone will increase the spatial resolution further.
