@@ -65,7 +65,7 @@ VocCollector accepts multiple input formats, all passed in the typical format of
 
 `Vocs = VocCollector('Data',D,'SRAI',SR);`
 
-where D is just an N_{Steps}xN_{Microphone} matrix containing the USM4 data, and SR is the sampling rate of the data. VocCollector accepts multiple additional arguments, which are documented inside the function. The default settings have worked well for us in the past.
+where D is just an N_Steps x N_Microphone matrix containing the USM4 data, and SR is the sampling rate of the data. VocCollector accepts multiple additional arguments, which are documented inside the function. The default settings have worked well for us in the past.
 A struct Vocs is returned with an entry for each vocalization detected. The struct has a number of fields, namely
 - Start: Start time of vocalization
 - Stop: Stop time of the vocalization
@@ -76,6 +76,36 @@ A struct Vocs is returned with an entry for each vocalization detected. The stru
 - Time: Time vector for the sound data
 - Spec: Spectrogram for the Vocalization
 
+### USM4/SLIM Localization
+The code for SLIM localization (see Stahl et al. Scientific Reports, 2023 for details) based on the high-fidelity microphone data is contained in the function VocLocalizer.m. While we use 4 microphones here, the code fully generalizes to N microphones in arbitrary positions relative to the platform. The localization is called per USV.
 
+`R = VocLocalizer('Sounds',Vocs(i).Sound,'SR',Vocs(i).SRSound,'MicrophonePositions',MP,'SourceHeight',SH);`
 
+where the microphone positions MP are supplied as a cell with as many entries as microphones and each entry has three coordinates [X,Y,Z] in units of meters. Importantly, the source height, e.g. in our case 1 cm above the platform needs to be supplied for appropriately constraining the method.
+VocLocalizer accepts multiple additional arguments/options, which are documented inside the function itself. One useful function is Plot, which shows the microphone positions in relation to the estimated source location. 
+To minimize the occurrence of spurious localizations, we recommend applying SLIM to multiple shorter sections of the vocalization and then defining the median of the resulting localization estimates at the final localization estimate.
+For testing and playing around with VocLocalizer, the function TestVocLocalizer can be used, which allows ground truth data to be supplied for testing the accuracy of VocLocalizer, including visualization of the results.
 
+### Cam64/Beamforming Localization
+The code for beamforming is essentially wrapping around the classical algorithm beamforming algorithm known as 'Delay and Sum', implemented to use either CPU or GPU and implementing the coarse/fine approach employed in HyVL (mainly to speed up localization times/minimize computation). The core function is C_BeamformingTime, which, in our toolchain is called from within C_collectCam64forVocs, which handles a number of synchronization, post-processing and plotting tasks, but is rather tightly linked to our toolchain and thus likely not very useful in its entirety to others. We have therefore written a reduced interface function `VocLocalizerCam64.m`, which provides a similar interface as VocLocalizer, but for Cam64 data.
+
+`R = C_BeamformingTime('Data',D,'SR',SR,'MicrophonePositions',MP,'Method','DelaySumGPU','ZDist',ZDist);`
+
+The data D is the raw sound data from the Cam64, ideally already cut to only contain the vocalization in the sampling rate SR. The distance to the localization plane also has to be provided as ZDist, which equals the height of the the Cam64 above the platform minus the height of the source above the platform. Again, the microphone positions have to be supplied as MP, this time for the Cam64. The internal positions have been mapped in the function C_mapCam64, but they need to still be shifted based on the specific position of your Cam64 setup. `C_BeamformingTime.m` accepts a number of parameters that help configure/improve the quality of Localizations, specifically:
+- FRange: Bandpass frequency range (min,max in Hz) to filter the signal. This is useful to both avoid low frequency sounds (foot steps, scratching etc), and high frequency noise (from the MEMS microphones themselves).
+- XRange: X limits of the (min, max, in meters) beamforming grid
+- YRange: Y limits of the (min, max, in meters) beamforming grid
+- XStep: X step size of the beamforming grid (in meters)
+- YStep: Y step size of the beamforming grid (in meters)
+
+Internally, C_BeamformingTime calls either `nearfieldDelayAndSUM` (CPU) or `nearfieldDelayAndSumGPU2` (for NVIDIA GPUs), which can be selected by supplying the 'Method' option as either 'DelaySum' or 'DelaySumGPU', respectively. GPU computation leads to a huge speedup (>100x typically) and is highly recommended. 
+The structure R is returned, which contains a map of the sound field `ProjectionXY`, in the resolution that was supplied to the system, given as the additional fields x and y.  
+
+## Video Tracking
+We used both manual and automatic tracking of mice. For automatic tracking, DeepLabCut and SLEAP were used on the basis of 6 body markers (Snout, Headcenter, Left Ear, Right Ear, Tailstart, Body Center), annotated about 1000 frames and trained both systems. In our hands, skeleton tracking did not work as expected in DLC, and therefore we initially wrote custom post processing code () that allowed more reliable tracking of individuals. Later, we switched to SLEAP which provided more reliable tracking of individual mice over longer periods (although still a number of switches occurred). As these tracking systems are evolving quickly, our experience is likely exceeded already by the time you are reading this. The tracking data from either of the tracking approaches was reformatted from the pixel locations.
+
+## Fusion of Audio and Video Tracking
+We provide a visual tool `MultiViewer` that serves to display the data and the associated results. In order to use it, the data needs to be brought in a particular format. While it would be a lengthy task to describe this format, we provide a sample data set below, which is then processed using the functions above to create the data displayed in MultiViewer.
+
+# Sample Data
+The sample data that we provide for the purpose of this repository is an excerpt of one of our recordings, in order to keep the processing/data requirements low for the purpose of this tutorial.
