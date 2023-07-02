@@ -20,7 +20,7 @@ An array of high-fidelity ultrasonic microphones forms the basis for the acquisi
 
 For positioning, the main limitations to take into account are: 
   - The locations of the microphones should encompass the recording area to maximize runtime differences.
-   -The microphones should be placed higher than the platform to avoid sound absorption by the bodies of the mice.
+  - The microphones should be placed higher than the platform to avoid sound absorption by the bodies of the mice.
   - Ultrasound is rather directional, therefore the microphones should be distributed in a way to maximize the chance of being in the direction of vocalization of the mice.
 
 ## Cam64 Setup
