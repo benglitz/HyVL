@@ -110,4 +110,4 @@ We used both manual and automatic tracking of mice. For automatic tracking, Deep
 We provide a visual tool `MultiViewer` that serves to display the data and the associated results. In order to use it, the data needs to be brought in a particular format. While it would be a lengthy task to describe this format, we provide a sample data set below, which is then processed using the functions above to create the data displayed in MultiViewer.
 
 # Sample Data
-The sample data that we provide for the purpose of this repository is an excerpt of one of our recordings, in order to keep the processing/data requirements low for the purpose of this tutorial.
+The sample data that we provide for the purpose of this repository is an excerpt of one of our recordings, in order to keep the processing/data requirements low for the purpose of this tutorial. Since the dataset was too big for GitHub, it can be downloaded [here](https://doi.org/10.34973/7kgc-ta72), in the subdirectory: Data => SampleData .
