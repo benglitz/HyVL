@@ -1,7 +1,7 @@
 # HyVL - Hybrid Vocalization Localizer
 The HyVL system relies on specific hardware and software for achieving high accuracy sound localization. We provide guides here for the hardware setup, documentation of the core functions and a sample data analysis pipeline. The present guide assumes that different labs will use different pipelines, programming languages and hardware components, and thus tries to describe general guidelines, rather than minutely reproduce our setup (which is documented in the publication). 
 
-![](TrackingSample.png)
+![](Images/TrackingSample.png)
 
 # Hardware Setup
 The hardware setup can generally be divided into two components, the high-fidelity microphone setup, the Cam64 setup and the video camera setup. While we provide some details regarding our choice of hardware, the specific devices are of course exchangeable and can be adapted to the specific lab. 
@@ -9,7 +9,7 @@ It is generally preferable to keep the whole setup inside a sound attenuated boo
 Since multiple data sources are being acquired with substantial data throughput each, which puts the computer under considerable load, it is recommendable to not use the computer for other tasks during the acquisition process.
 Generally, all measurements are supplied in units of meters to avoid conversion problems.
 
-![](SystemSetup.png)
+![](Images/SystemSetup.png)
 
 ## High-Fidelity Microphone Setup
 An array of high-fidelity ultrasonic microphones forms the basis for the acquisition of the audio data for USV detection and SLIM sound localization. While the geometry of the array and the number of microphones can be chosen rather freely (our code in VocLocalizer.m adapts to these), the accuracy of the design is essential for high-precision localization. 
@@ -53,7 +53,7 @@ We converted all estimates to a general coordinate system whose origin was place
 # Data Analysis
 The main challenge in the analysis is to maintain a high accuracy through the entire pipeline. The overall steps in the pipeline initially treat the data from the different data sources independently and successively integrate them (see below for overview of the data flows and the involved functions). 
 
-![](SystemOverview.png)
+![](Images/SystemOverview.png)
 
 Importantly, while we here provide the functions that we use for the analysis, we presume that users will integrate them in various ways in their respective analysis/acquisition pipelines, and hence, we do not attempt to provide a fully general, independent system, but instead focus the description on a sample data set, that can be used for exploring the analysis. 
 
